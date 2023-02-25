@@ -1,0 +1,52 @@
+<template>
+    <div class="container login-wrapper">
+        <form class="form-floating">
+            <h3 class="mb-3">請先登入</h3>
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control w-100" id="floatingInput" placeholder="name@example.com" v-model="user.username">
+                <label for="floatingInput">Email address</label>
+            </div>
+            <div class="form-floating">
+                <input type="password" class="form-control" id="floatingPassword" placeholder="Password" v-model="user.password">
+                <label for="floatingPassword">Password</label>
+            </div>
+            <button type="button" class="btn btn-primary w-100 btn-lg mt-3" @click="login">登入</button>
+        </form>
+    </div>
+</template>
+
+<script>
+const { VITE_APP_URL } = import.meta.env
+export default {
+  data () {
+    return {
+      user: {
+        username: '',
+        password: ''
+      }
+    }
+  },
+  methods: {
+    login () {
+      this.$http.post(`${VITE_APP_URL}admin/signin`, this.user)
+        .then(res => {
+          const { token, expired } = res.data
+          document.cookie = `myToken=${token}; expires=${new Date(expired)};`
+          this.$router.push('/admin')
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+    .login-wrapper {
+        display: flex;
+        align-items: center; /* 垂直居中 */
+        justify-content: center; /* 水平居中 */
+        height: 100vh; /* 設定高度為視窗高度 */
+    }
+</style>
