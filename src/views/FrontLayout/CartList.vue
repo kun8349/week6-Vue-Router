@@ -67,18 +67,80 @@
             </template>
         </tbody>
     </table>
+    <div class="my-5 row justify-content-center">
+      <v-form ref="form" class="col-md-6" v-slot="{ errors }" @submit="order">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <Field id="email" name="email" type="email" class="form-control" placeholder="請輸入 Email"
+            rules="email|required" v-model="data.user.email" :class="{ 'is-invalid': errors['email'] }"></Field>
+          <error-message name="email" class="invalid-feedback"></error-message>
+        </div>
+        <div class="mb-3">
+          <label for="name" class="form-label">收件人姓名</label>
+          <Field id="name" name="姓名" type="text" class="form-control" placeholder="請輸入姓名" rules="required|min:2"
+            v-model="data.user.name" :class="{ 'is-invalid': errors['姓名'] }"></Field>
+          <error-message name="姓名" class="invalid-feedback"></error-message>
+        </div>
+        <div class="mb-3">
+          <label for="tel" class="form-label">收件人電話</label>
+          <Field id="tel" name="電話" type="text" class="form-control" placeholder="請輸入電話" rules="required|numeric|min:8"
+            v-model="data.user.tel" :class="{ 'is-invalid': errors['電話'] }"></Field>
+          <error-message name="電話" class="invalid-feedback"></error-message>
+        </div>
+        <div class="mb-3">
+          <label for="address" class="form-label">收件人地址</label>
+          <Field id="address" name="地址" type="text" class="form-control" placeholder="請輸入地址" rules="required"
+            v-model="data.user.address" :class="{ 'is-invalid': errors['地址'] }"></Field>
+          <error-message name="地址" class="invalid-feedback"></error-message>
+        </div>
+        <div class="mb-3">
+          <label for="message" class="form-label">留言</label>
+          <textarea id="message" class="form-control" cols="30" rows="10" style="resize:none; height: 200px; overflow-y: auto;" v-model="data.user.message"></textarea>
+        </div>
+        <div class="text-end">
+          <button type="submit" class="btn btn-danger">送出訂單</button>
+        </div>
+      </v-form>
+    </div>
 </template>
 
 <script>
+import { Form, Field, ErrorMessage, defineRule, configure } from 'vee-validate'
+import { localize, setLocale } from '@vee-validate/i18n'
+import VeeValidateRules from '@vee-validate/rules'
+import zhTW from '@vee-validate/i18n/dist/locale/zh_TW.json'
 import Swal from 'sweetalert2'
+Object.keys(VeeValidateRules).forEach((rule) => {
+  defineRule(rule, VeeValidateRules[rule])
+})
+configure({
+  generateMessage: localize({ zh_TW: zhTW }), // 載入繁體中文語系
+  validateOnInput: true
+})
+setLocale('zh_TW')
+
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env
 export default {
   data () {
     return {
       cartList: {},
       loadingItem: '',
-      total: 0
+      total: 0,
+      data: {
+        user: {
+          name: '',
+          email: '',
+          tel: '',
+          address: '',
+          message: ''
+        }
+      }
     }
+  },
+  components: {
+    Field,
+    VForm: Form,
+    ErrorMessage
   },
   methods: {
     getCart () {
@@ -138,6 +200,25 @@ export default {
             showConfirmButton: false,
             timer: 1500
           })
+        })
+    },
+    order () {
+      this.post(`${VITE_APP_URL}api/${VITE_APP_PATH}/order`, { data: this.form })
+        .then(res => {
+          this.loading()
+          this.form = {
+            user: {
+              name: '',
+              email: '',
+              tel: '',
+              address: ''
+            },
+            message: ''
+          }
+          this.getCartList()
+        })
+        .catch(err => {
+          alert(err.response.data.message)
         })
     }
   },
