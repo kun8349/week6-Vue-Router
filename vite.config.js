@@ -11,7 +11,7 @@ export default defineConfig({
       include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue']
     })
   ],
-  base: 'week6-Vue/',
+  base: '/week6-Vue-Router/',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

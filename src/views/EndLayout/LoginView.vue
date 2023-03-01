@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2'
 const { VITE_APP_URL } = import.meta.env
 export default {
   data () {
@@ -32,10 +33,22 @@ export default {
         .then(res => {
           const { token, expired } = res.data
           document.cookie = `myToken=${token}; expires=${new Date(expired)};`
-          this.$router.push('/admin')
+          this.$router.push('/admin/order')
+          Swal.fire({
+            icon: 'success',
+            title: '登入成功',
+            showConfirmButton: false,
+            timer: 1500
+          })
         })
-        .catch(err => {
-          console.log(err)
+        .catch(() => {
+          this.$router.push('/')
+          Swal.fire({
+            icon: 'error',
+            title: '登入失敗',
+            showConfirmButton: false,
+            timer: 1000
+          })
         })
     }
   }

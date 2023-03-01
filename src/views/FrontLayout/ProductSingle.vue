@@ -23,9 +23,11 @@
                     <div class="col-md-6 text-end">
                         <div class="input-group text-end mt-5">
                           <input type="number" min="1" class="form-control w-50"
-                          v-model="NewQty">
-                          <button class="btn btn-primary btn-lg" @click="addCart(product.id, NewQty)">
+                          v-model="NewQty" :disabled="loadingItem === product.id">
+                          <button class="btn btn-primary btn-lg" @click="addCart(product.id, NewQty)"
+                          :disabled="loadingItem === product.id">
                             加入購物車
+                            <img src="../../assets/loading.gif" alt="loading" width="20" v-if="loadingItem === product.id">
                           </button>
                         </div>
                     </div>
@@ -36,12 +38,14 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2'
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env
 export default {
   data () {
     return {
       product: {},
-      NewQty: 1
+      NewQty: 1,
+      loadingItem: ''
     }
   },
   methods: {
@@ -57,13 +61,27 @@ export default {
         product_id: item,
         qty
       }
+      this.loadingItem = item
       this.$http.post(`${VITE_APP_URL}api/${VITE_APP_PATH}/cart`, { data })
         .then(res => {
-          alert(res.data.message)
+          this.loadingItem = ''
+          Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: '加入購物車成功(ﾉ>ω<)ﾉ',
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true
+          })
           this.getProduct()
         })
-        .catch(err => {
-          alert(err.response.data.message)
+        .catch(() => {
+          Swal.fire({
+            icon: 'error',
+            title: '加入購物車失敗(‘⊙д-)',
+            showConfirmButton: false,
+            timer: 1500
+          })
         })
     }
   },

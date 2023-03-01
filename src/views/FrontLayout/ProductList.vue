@@ -20,11 +20,14 @@
           <td class="fs-5">${{ product.price }}</td>
           <td class="text-center">
             <div class="btn-group" role="group" aria-label="Basic outlined example">
-              <router-link :to="`/product/${product.id}`" type="button" class="btn btn-sm btn-outline-dark">
+              <router-link :to="`/product/${product.id}`" type="button" class="btn btn-sm btn-outline-dark"
+              :class="{routerDisabled : loadingItem === product.id}">
                 查看更多
               </router-link>
-              <button type="button" class="btn btn-sm btn-outline-primary" @click="() => addCart(product.id)">
+              <button type="button" class="btn btn-sm btn-outline-primary" @click="() => addCart(product.id)"
+                :disabled="loadingItem === product.id">
                 加入購物車
+                <img src="../../assets/loading.gif" alt="loading" width="20" v-if="loadingItem === product.id">
               </button>
             </div>
           </td>
@@ -34,11 +37,13 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2'
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env
 export default {
   data () {
     return {
-      products: {}
+      products: {},
+      loadingItem: ''
     }
   },
   methods: {
@@ -46,6 +51,7 @@ export default {
       this.$http.get(`${VITE_APP_URL}api/${VITE_APP_PATH}/products`)
         .then(res => {
           this.products = res.data.products
+          this.isLoading = false
         })
     },
     addCart (item) {
@@ -53,12 +59,27 @@ export default {
         product_id: item,
         qty: 1
       }
+      this.loadingItem = item
       this.$http.post(`${VITE_APP_URL}api/${VITE_APP_PATH}/cart`, { data })
         .then(res => {
-          alert(res.data.message)
+          this.isLoading = false
+          this.loadingItem = ''
+          Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: '加入購物車成功(ﾉ>ω<)ﾉ',
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true
+          })
         })
-        .catch(err => {
-          alert(err.response.data.message)
+        .catch(() => {
+          Swal.fire({
+            icon: 'error',
+            title: '加入購物車失敗(‘⊙д-)',
+            showConfirmButton: false,
+            timer: 1500
+          })
         })
     }
   },
@@ -68,3 +89,10 @@ export default {
 }
 
 </script>
+
+<style>
+.routerDisabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+</style>

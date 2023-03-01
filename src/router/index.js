@@ -48,6 +48,11 @@ const routes = [
         component: () => import('../views/EndLayout/ProductList.vue')
       }
     ]
+  },
+  // 404頁面
+  {
+    path: '/:pathMatch(.*)*',
+    component: () => import('../views/NotFound.vue')
   }
 ]
 

@@ -30,7 +30,7 @@
                     <td class="">
                         <div class="input-group w-50">
                             <input v-model="cartProduct.qty" type="number" min="1" class="form-control"
-                            @change="() => editNum(cartProduct)" style="{ disabled= }"
+                            @change="() => editNum(cartProduct)"
                             :disabled="loadingItem === cartProduct.id">
                             <!---->
                             <span class="input-group-text">
@@ -49,7 +49,7 @@
                     <td></td>
                     <td class="fs-5 text-end fw-bold">
                         總計：
-                        ${{  }}
+                        ${{ total }}
                     </td>
                 </tr>
             </template>
@@ -70,12 +70,14 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2'
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env
 export default {
   data () {
     return {
       cartList: {},
-      loadingItem: ''
+      loadingItem: '',
+      total: 0
     }
   },
   methods: {
@@ -83,18 +85,31 @@ export default {
       this.$http.get(`${VITE_APP_URL}api/${VITE_APP_PATH}/cart`)
         .then(res => {
           this.cartList = res.data.data.carts
+          this.total = res.data.data.total
         })
     },
     deleteSingle (product) {
       this.loadingItem = product.id
       this.$http.delete(`${VITE_APP_URL}api/${VITE_APP_PATH}/cart/${product.id}`)
         .then(res => {
-          alert('已刪除產品')
+          Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: '成功刪除單一產品d(`･∀･)b',
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true
+          })
           this.getCart()
           this.loadingItem = ''
         })
-        .catch(err => {
-          alert(err.response.data.message)
+        .catch(() => {
+          Swal.fire({
+            icon: 'success',
+            title: '刪除單一品項失敗٩(ŏ﹏ŏ、)۶',
+            showConfirmButton: false,
+            timer: 1500
+          })
         })
     },
     editNum (product) {
@@ -105,12 +120,24 @@ export default {
       this.loadingItem = product.id
       this.$http.put(`${VITE_APP_URL}api/${VITE_APP_PATH}/cart/${product.id}`, { data })
         .then(res => {
-          alert(res.data.message)
+          Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: '成功加入購物車(｡◕∀◕｡)',
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true
+          })
           this.getCart()
           this.loadingItem = ''
         })
-        .catch(err => {
-          alert(err.response.data.message)
+        .catch(() => {
+          Swal.fire({
+            icon: 'success',
+            title: '加入購物車失敗(｡ŏ_ŏ)',
+            showConfirmButton: false,
+            timer: 1500
+          })
         })
     }
   },

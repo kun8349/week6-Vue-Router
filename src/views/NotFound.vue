@@ -15,14 +15,14 @@
                         <router-link class="nav-link" to="/cart">前台購物車列表</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link" to="/login">後台登入</router-link>
+                        <router-link class="nav-link" to="/login">後台列表</router-link>
                     </li>
                 </ul>
                 </div>
             </div>
         </nav>
-        <div class="text-center">
-            <router-view/>
-        </div>
+        <h2 class="text-start mt-5 fs-1 text-danger">
+            找不到此頁面喔
+        </h2>
     </div>
 </template>
